@@ -61,7 +61,7 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
     this.resourceId             = (!resourceId) ? 0 : resourceId;
     this.hooks                  = {};
     
-    this.construct              = function() {
+    this.construct                  = function() {
 
         this
             .printStartup()
@@ -72,17 +72,17 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
         return this;
     };
 
-    this.printStartup           = function() {
-        this.hook('Init', function() {
+    this.printStartup               = function() {
+        this.call_hook('Init', function() {
             $(self).console("Started");
         });
 
         return this;
     };
 
-    this.initConfig             = function() {
+    this.initConfig                 = function() {
 
-        this.hook('LoadDefaultConfig', function() {
+        this.call_hook('LoadDefaultConfig', function() {
             this.Config     = defaultConfig;
             this.SaveConfig();
         });
@@ -90,9 +90,9 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
         return this;
     };
 
-    this.initData               = function() {
+    this.initData                   = function() {
 
-        this.hook('OnServerInitialized', function() {
+        this.call_hook('OnServerInitialized', function() {
             var jsonData        = data.GetData(self.name);
             jsonData['version'] = self.version;
             data.SaveData(self.name)
@@ -101,7 +101,7 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
         return this;
     };
 
-    this.object                 = function() {
+    this.call_object                 = function() {
         var baseObject  = {
             "Title":        this.name,
             "Version":      this.version,
@@ -117,7 +117,7 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
         return baseObject;
     };
 
-    this.hook                   = function(hook, callback) {
+    this.call_hook                   = function(hook, callback) {
         this.hooks[hook]    = callback;
         return this;
     };
@@ -125,16 +125,16 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
     return this.construct();
 };
 
-var $                           = function(input) {
+var $                               = function(input) {
 
     this.context                = {};
 
-    this.construct              = function(input) {
+    this.construct                  = function(input) {
         this.context            = input;
         return this;
     };
 
-    this.console                = function(text) {
+    this.console                    = function(text) {
         if (this.context && this.context.name) {
             print('[' + this.context.name + '] ' + text);
         } else {
@@ -144,23 +144,27 @@ var $                           = function(input) {
         return this;
     };
 
-    this.broadcast              = function(text) {
+    this.broadcast                  = function(text) {
 
     };
 
-    this.hook                   = function(eventName, callback) {
-        if (!this.context)      return false;
-        this.context.hook(eventName, callback);
-        return this;
-    };
+    /** Call Functions */
+        this.hook                   = function(eventName, callback) {
+            if (!this.context)      return false;
+            this.context.call_hook(eventName, callback);
+            return this;
+        };
 
-
+        this.object                 = function() {
+            if (!this.context)      return false;
+            return this.context.call_object();
+        };
 
     return this.construct(input);
 };
 
 var oxide       = new oxidePlugin(title, author, version, resourceId);
-var corrosion   = oxide.object();
+var corrosion   = $(oxide).object();
 
 
 
