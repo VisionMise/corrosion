@@ -54,6 +54,7 @@ var defaultConfig       = {
 var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
 
     var self                    = this;
+
     this.name                   = pluginNameStr;
     this.author                 = author;
     this.version                = version;
@@ -62,12 +63,22 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
     
     this.construct              = function() {
 
-        this.initConfig();
-        this.initData();
+        this
+            .printStartup()
+            .initConfig()
+            .initData()
+        ;
 
         return this;
     };
 
+    this.printStartup           = function() {
+        this.hook('Init', function() {
+            $(self).console("Started");
+        });
+
+        return this;
+    };
 
     this.initConfig             = function() {
 
@@ -76,6 +87,7 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
             this.SaveConfig();
         });
 
+        return this;
     };
 
     this.initData               = function() {
@@ -86,6 +98,7 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
             data.SaveData(self.name)
         });
 
+        return this;
     };
 
     this.object                 = function() {
@@ -122,8 +135,8 @@ var $                           = function(input) {
     };
 
     this.console                = function(text) {
-        if (this.context) {
-            print('[' + this.context + '] ' + text);
+        if (this.context && this.context.name) {
+            print('[' + this.context.name + '] ' + text);
         } else {
             print(text);
         }
@@ -135,22 +148,19 @@ var $                           = function(input) {
 
     };
 
+    this.hook                   = function(eventName, callback) {
+        if (!this.context)      return false;
+        this.context.hook(eventName, callback);
+        return this;
+    };
+
 
 
     return this.construct(input);
 };
 
-var oxide = new oxidePlugin(title, author, version, resourceId);
-
-oxide
-
-    .hook('Init', function() {
-        $(oxide.name).console('Started');
-    })
-
-;
-
-var corrosion = oxide.object();
+var oxide       = new oxidePlugin(title, author, version, resourceId);
+var corrosion   = oxide.object();
 
 
 
