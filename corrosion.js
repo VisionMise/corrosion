@@ -19,6 +19,11 @@
  * 
  */
 
+
+
+/**
+ * Plugin Attributes
+ */
 var title               = 'corrosion';
 var version             = V(0,1,1);
 var author              = 'VisionMise';
@@ -26,6 +31,9 @@ var resourceId          = 0;
 
 
 
+/**
+ * Default Configuration for Plugin
+ */
 var defaultConfig       = {
 
     'version':          '1.0',
@@ -61,10 +69,10 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
     this.resourceId             = (!resourceId) ? 0 : resourceId;
     this.hooks                  = {};
     
-    this.construct                  = function() {
+    this.construct              = function() {
 
         this
-            .printStartup()
+            .printMsgs()
             .initConfig()
             .initData()
         ;
@@ -72,15 +80,28 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
         return this;
     };
 
-    this.printStartup               = function() {
+    this.printMsgs              = function() {
+
         this.call_hook('Init', function() {
             $(self).console("Started");
+        });
+
+        this.call_hook('OnServerShutdown', function() {
+            $(self).console("Server Shutdown Started");
+        });
+
+        this.call_hook('OnPlayerInit', function(player) {
+            $(self).console("Player Connected: " + player.displayName);
+        }); 
+
+        this.call_hook('OnPlayerDisconnected', function(player) {
+            $(self).console("Player Disconnected: " + player.displayName);
         });
 
         return this;
     };
 
-    this.initConfig                 = function() {
+    this.initConfig             = function() {
 
         this.call_hook('LoadDefaultConfig', function() {
             this.Config     = defaultConfig;
@@ -90,18 +111,20 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
         return this;
     };
 
-    this.initData                   = function() {
+    this.initData               = function() {
 
         this.call_hook('OnServerInitialized', function() {
             var jsonData        = data.GetData(self.name);
             jsonData['version'] = self.version;
             data.SaveData(self.name)
+
+            $(self).console("Server Initialized");
         });
 
         return this;
     };
 
-    this.call_object                 = function() {
+    this.call_object            = function() {
         var baseObject  = {
             "Title":        this.name,
             "Version":      this.version,
@@ -117,7 +140,7 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
         return baseObject;
     };
 
-    this.call_hook                   = function(hook, callback) {
+    this.call_hook              = function(hook, callback) {
         this.hooks[hook]    = callback;
         return this;
     };
@@ -125,28 +148,36 @@ var oxidePlugin     = function(pluginNameStr, author, version, resourceId) {
     return this.construct();
 };
 
-var $                               = function(input) {
+var $               = function(input) {
 
-    this.context                = {};
+    /** Construct **/
+        this.context                = {};
 
-    this.construct                  = function(input) {
-        this.context            = input;
-        return this;
-    };
+        this.construct                  = function(input) {
+            this.context            = input;
+            return this;
+        };
 
-    this.console                    = function(text) {
-        if (this.context && this.context.name) {
-            print('[' + this.context.name + '] ' + text);
-        } else {
-            print(text);
-        }
 
-        return this;
-    };
+    /** Methods */
+        this.console                    = function(text) {
+            if (this.context && this.context.name) {
+                print('[' + this.context.name + '] ' + text);
+            } else {
+                print(text);
+            }
 
-    this.broadcast                  = function(text) {
+            return this;
+        };
 
-    };
+        this.broadcast                  = function(text) {
+            if (this.context && this.context.name) {
+                rust.BroadcastChat(this.context.name, text);
+            } else {
+                rust.BroadcastChat('Corrosion', text);
+            }
+        };
+
 
     /** Call Functions */
         this.hook                   = function(eventName, callback) {
