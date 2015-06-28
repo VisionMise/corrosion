@@ -3,8 +3,8 @@
 
 	class config {
 
-		public ready 			= false;
-		public autoWrite 		= true;
+		public $ready 			= false;
+		public $autoWrite 		= true;
 
 		protected $path 		= false;
 		protected $data			= [];
