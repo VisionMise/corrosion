@@ -1,6 +1,5 @@
 <?php
 
-
 	class config {
 
 		public $ready 			= false;
@@ -67,8 +66,6 @@
 		public function save() {
 			return $this->writeFile();
 		}
-
-
 	}
 
 ?>

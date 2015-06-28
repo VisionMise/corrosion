@@ -6,4 +6,8 @@
 	require('system/init.php');
 
 
+	// Done
+	exit();
+
+
 ?>
