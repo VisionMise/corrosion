@@ -1,0 +1,5 @@
+<?php
+
+	$stdInput 	= $_REQUEST;
+
+?>
